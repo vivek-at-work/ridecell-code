@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 APPS_DIR = os.path.join(BASE_DIR, 'apps')
 sys.path.insert(0, APPS_DIR)
 
-SECRET_KEY = '&3jy-c34z5sx+*vtwwex&5eqwev@+zbh*dh)*&4-vkuzhkakh+'
+SECRET_KEY = os.environ.get('PMS_SECRET_KEY', '&3jy-c34z5sx+*vtwwex&5eqwev@+zbh*dh)*&4-vkuzhkakh+')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,15 +77,11 @@ WSGI_APPLICATION = 'parkingmanagement.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'mydb',
-        'USER': 'myuser',
-        'PASSWORD': 'mypass',
+        'NAME': os.environ.get('PMS_DB_NAME', 'mydb') ,
+        'USER': os.environ.get('PMS_DB_USER', 'myuser'),
+        'PASSWORD': os.environ.get('PMS_DB_PASS', 'mypass')
     },
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -96,9 +92,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 

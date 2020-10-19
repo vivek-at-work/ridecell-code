@@ -52,13 +52,13 @@ def cancel_parking_spot_booking():
         x = requests.get('{}{}/'.format(booking['url'],'cancel'), auth=HTTPBasicAuth(USERNAME, PASSWORD))
         print(x.json())
 
-
-perform_sign_up()
-get_parking_spots()
-get_parking_spots_in_radius()
-get_parking_spots_in_radius(1000)
-get_parking_spots_in_radius(50000)
-book_parking_spot()
-get_parking_spots()
-cancel_parking_spot_booking()
-get_parking_spots()
+if __name__ == "__main__":
+    perform_sign_up()
+    get_parking_spots()
+    get_parking_spots_in_radius()
+    get_parking_spots_in_radius(1000)
+    get_parking_spots_in_radius(50000)
+    book_parking_spot()
+    get_parking_spots()
+    cancel_parking_spot_booking()
+    get_parking_spots()

@@ -213,7 +213,7 @@ class ParkingAPITests(APITestCase):
         url = reverse('booking-list')
         response = self.client.get(url, format='json')
         url = reverse('booking-cancel', args=[Booking.objects.last().id])
-        response = self.client.get(url, {}, format='json')
+        response = self.client.post(url, {}, format='json')
         assert response.data['cancled_at'] is not None
         url = reverse('booking-list')
         response = self.client.get(url, format='json')

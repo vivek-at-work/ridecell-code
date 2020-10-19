@@ -49,7 +49,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     permission_classes = [permissions.IsAuthenticated]
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
         try:
             booking = self.get_object()

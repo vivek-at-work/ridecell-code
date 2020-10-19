@@ -49,7 +49,7 @@ def cancel_parking_spot_booking():
     url = 'http://127.0.0.1:8001/api/v1/bookings/'
     bookings = requests.get(url,  auth=HTTPBasicAuth(USERNAME, PASSWORD))
     for booking in bookings.json():
-        x = requests.get('{}{}/'.format(booking['url'],'cancel'), auth=HTTPBasicAuth(USERNAME, PASSWORD))
+        x = requests.post('{}{}/'.format(booking['url'],'cancel'), auth=HTTPBasicAuth(USERNAME, PASSWORD))
         print(x.json())
 
 if __name__ == '__main__':

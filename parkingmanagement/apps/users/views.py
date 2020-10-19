@@ -28,7 +28,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.serializer_class(
             data=request.data, context={'request': request},
         )
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             user = USER.objects.create_user(
                 serializer.validated_data['contact_number'],
                 serializer.validated_data['password'],

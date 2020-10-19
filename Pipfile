@@ -10,8 +10,8 @@ django = "*"
 djangorestframework = "*"
 django-environ = "*"
 psycopg2 = "*"
-djangorestframework-gis = "*"
 gdal = "==2.0.1"
+requests = "*"
 
 [requires]
 python_version = "3.8"

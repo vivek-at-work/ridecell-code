@@ -1,0 +1,32 @@
+[
+{
+    "model": "parkings.parkingspot",
+    "pk": 1,
+    "fields": {
+        "code": "D Mart Baner Near Sadanand Hotel, Survey No.110, Baner Road, Laxman Nagar, Baner, Pune, Maharashtra",
+        "is_reserved": false,
+        "point": "SRID=4326;POINT (73.76953899999999 18.567124)",
+        "current_base_cost": 10.0
+    }
+},
+{
+    "model": "parkings.parkingspot",
+    "pk": 2,
+    "fields": {
+        "code": "Pride Gateway, Sr No 112, Opp, D-Mart, Baner road, Pune, Maharashtra 411045",
+        "is_reserved": false,
+        "point": "SRID=4326;POINT (73.771443 18.566064)",
+        "current_base_cost": 20.0
+    }
+},
+{
+    "model": "parkings.parkingspot",
+    "pk": 3,
+    "fields": {
+        "code": "Synechron Technologies Pvt. Ltd., CEDAR Building Ascendas, Phase 3, Hinjewadi Rajiv Gandhi Infotech Park, Maan, Pune, Maharashtra 411057",
+        "is_reserved": false,
+        "point": "SRID=4326;POINT (73.68419799999999 18.595042)",
+        "current_base_cost": 100.0
+    }
+}
+]

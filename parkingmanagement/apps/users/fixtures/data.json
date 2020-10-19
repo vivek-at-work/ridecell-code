@@ -1,0 +1,13 @@
+[
+{
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$216000$nfHd0G9td6j6$NDLuK2feP9Yp8ZVGqoo8Tg78AP5UdVcajFiGbtJ5spU=",
+        "last_login": "2020-10-19T11:35:09.937Z",
+        "contact_number": "9657946755",
+        "is_staff": true,
+        "is_superuser": false
+    }
+}
+]

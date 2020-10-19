@@ -9,3 +9,16 @@ class ParkingSpotNotAvailableError(Exception):
         self.parking_spot = parking_spot
         self.message = message
         super().__init__(self.message)
+
+
+class NotAvailableToCancelError(Exception):
+    """Exception raised while trying to cancel an already canceld booking.
+
+    Attributes:
+        booking -- input bookingwhich caused the error
+    """
+
+    def __init__(self, booking, message='Booking Spot is not available for Cancelation.'):
+        self.booking = booking
+        self.message = message
+        super().__init__(self.message)

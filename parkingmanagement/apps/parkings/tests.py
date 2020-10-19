@@ -74,7 +74,7 @@ class BookingTestCase(TestCase):
         )
 
         booking = Booking.objects.first()
-        expected = (end_time - start_time).total_seconds() / 60 * 10
+        expected = round((end_time - start_time).total_seconds() / 60 * 10,2)
         assert booking.total_cost == expected
 
     def test_cancel(self):
@@ -217,7 +217,7 @@ class ParkingAPITests(APITestCase):
         assert response.data['cancled_at'] is not None
         url = reverse('booking-list')
         response = self.client.get(url, format='json')
-        assert len(response.data) == 1
+        assert len(response.data) == 0
 
     def test_parking_spot_filtering(self):
         """

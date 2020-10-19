@@ -1,3 +1,5 @@
+from parkings.exceptions import (NotAvailableToCancelError,
+                                 ParkingSpotNotAvailableError)
 from parkings.filters import DistanceToPointFilter
 from parkings.models import Booking, ParkingSpot
 from parkings.serializers import (BookingRequestSerializer, BookingSerializer,
@@ -11,9 +13,7 @@ class ParkingSpotViewSet(viewsets.ModelViewSet):
     serializer_class = ParkingSpotSerializer
     queryset = ParkingSpot.objects.all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    distance_filter_field = 'point'
     filter_backends = (DistanceToPointFilter,)
-    distance_filter_convert_meters = True
 
     @action(
         detail=True,
@@ -27,12 +27,18 @@ class ParkingSpotViewSet(viewsets.ModelViewSet):
         )
         if serializer.is_valid(raise_exception=True):
             parking_spot = self.get_object()
-            booking = parking_spot.reserve(**serializer.validated_data)
-            parking_spot.save()
-            return Response(
-                BookingSerializer(booking, context={'request': request}).data,
-                status=status.HTTP_201_CREATED,
-            )
+            try:
+                booking = parking_spot.reserve(**serializer.validated_data)
+                parking_spot.save()
+                return Response(
+                    BookingSerializer(booking, context={'request': request}).data,
+                    status=status.HTTP_201_CREATED,
+                )
+            except ParkingSpotNotAvailableError as err:
+                return Response(
+                    {'message':str(err)},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
     def get_queryset(self):
         return ParkingSpot.objects.available()
@@ -45,15 +51,21 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def cancel(self, request, pk=None):
-        booking = self.get_object()
-        booking.cancel()
-        booking.save()
-        return Response(
-            self.serializer_class(booking, context={'request': request}).data,
-            status=status.HTTP_201_CREATED,
-        )
+        try:
+            booking = self.get_object()
+            booking.cancel()
+            booking.save()
+            return Response(
+                self.serializer_class(booking, context={'request': request}).data,
+                status=status.HTTP_201_CREATED,
+            )
+        except NotAvailableToCancelError as err:
+            return Response(
+                {'message':str(err)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            return self.request.user.bookings.all()
+            return self.request.user.bookings.current()
         return Booking.objects.none()

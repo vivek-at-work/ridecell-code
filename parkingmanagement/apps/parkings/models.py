@@ -3,7 +3,8 @@ from django.contrib.gis.db import models as geo_models
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from parkings.exceptions import ParkingSpotNotAvailableError
+from parkings.exceptions import (NotAvailableToCancelError,
+                                 ParkingSpotNotAvailableError)
 
 USER = get_user_model()
 
@@ -58,6 +59,12 @@ class ParkingSpot(models.Model):
         return '%s' % (self.code)
 
 
+
+class BookingQuerySet(models.QuerySet):
+    def current(self):
+        return self.filter(cancled_at__isnull=True)
+
+
 class Booking(models.Model):
     """
     An Parking Spot that is registered to the system for further bookings.
@@ -89,6 +96,8 @@ class Booking(models.Model):
         blank=True, null=True, help_text=_('Cost at which the booking was done.'),
     )
 
+    objects = BookingQuerySet.as_manager()
+
     @property
     def total_cost(self):
         """total cost applicable for this booking
@@ -98,15 +107,16 @@ class Booking(models.Model):
         """
         from_time = self.from_time
         valid_up_to = self.valid_up_to
-        return (
-            (valid_up_to - from_time).total_seconds() /
-            60 * self.applicable_base_cost
-        )
+        calc = (valid_up_to - from_time).total_seconds() / 60 * self.applicable_base_cost
+
+        return round(calc,2)
 
     def cancel(self):
         """
         Cancles this booking and releses the parking spot
         """
+        if self.cancled_at is not None:
+            raise NotAvailableToCancelError(self)
         self.cancled_at = timezone.now()
         self.parking_spot.release()
         self.parking_spot.save()

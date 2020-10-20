@@ -12,6 +12,10 @@ from rest_framework.test import (APIClient, APIRequestFactory, APITestCase,
                                  force_authenticate)
 
 USER = get_user_model()
+CONTACT_NUMBER = '9657946755'
+PASSWORD ='Qwerty@1234'
+
+
 class ParkingSpotTestCase(TestCase):
     def setUp(self):
         ParkingSpot.objects.create(
@@ -20,7 +24,7 @@ class ParkingSpotTestCase(TestCase):
         ParkingSpot.objects.create(
             code='B', is_reserved=False, point=geo_models.Point(5, 29), current_base_cost=20,
         )
-        USER.objects.create_user('9657946755','Qwerty@1234')
+        USER.objects.create_user(CONTACT_NUMBER,PASSWORD)
 
     def test_available_parking_spot_can_be_booked(self):
         """Test Parking Spot can be booked"""
@@ -60,9 +64,10 @@ class ParkingSpotTestCase(TestCase):
 class BookingTestCase(TestCase):
     def setUp(self):
         obj_spot = ParkingSpot.objects.create(
-            code='A', is_reserved=False, point=geo_models.Point(5, 23), current_base_cost=10,
+            code='A', is_reserved=False, point=geo_models.Point(5, 23),
+            current_base_cost=10,
         )
-        USER.objects.create_user('9657946755', 'Qwerty@1234')
+        USER.objects.create_user(CONTACT_NUMBER, PASSWORD)
 
 
     def test_total_cost(self):
@@ -70,7 +75,8 @@ class BookingTestCase(TestCase):
         start_time = timezone.now()
         end_time = timezone.now()+datetime.timedelta(minutes=10)
         booking = ParkingSpot.objects.first().reserve(
-            from_time=start_time, valid_up_to=end_time, tenant=USER.objects.first(),
+            from_time=start_time, valid_up_to=end_time,
+            tenant=USER.objects.first(),
         )
 
         booking = Booking.objects.first()
@@ -82,7 +88,8 @@ class BookingTestCase(TestCase):
         start_time = timezone.now()
         end_time = timezone.now()+datetime.timedelta(minutes=10)
         booking = ParkingSpot.objects.first().reserve(
-            from_time=start_time, valid_up_to=end_time, tenant=USER.objects.first(),
+            from_time=start_time, valid_up_to=end_time,
+            tenant=USER.objects.first(),
         )
         booking.cancel()
         assert booking.cancled_at is not None
@@ -92,9 +99,10 @@ class BookingTestCase(TestCase):
 class ParkingAPITests(APITestCase):
     def setUp(self):
         user = USER.objects.create_user(
-            contact_number='lauren', password='Qwerty@1234',
+            contact_number=CONTACT_NUMBER, password=PASSWORD,
         )
-        self.client.login(username='lauren', password='Qwerty@1234')
+        self.client.login(username=CONTACT_NUMBER,
+                          password=PASSWORD)
 
     def test_parkingspot_list(self):
         """
@@ -102,7 +110,8 @@ class ParkingAPITests(APITestCase):
         """
         url = reverse('parkingspot-list')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code,
+                         status.HTTP_200_OK)
 
     def test_parkingspot_create(self):
         """
@@ -118,11 +127,10 @@ class ParkingAPITests(APITestCase):
                 'longitude': 24.452545489,
             },
         }
-        response = self.client.post(url, payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        url = reverse('parkingspot-list')
-        response = self.client.get(url, format='json')
-        assert len(response.data) == 1
+        post_response = self.client.post(url, payload, format='json')
+        self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
+        list_response = self.client.get(url, format='json')
+        assert len(list_response.data) == 1
 
     def test_parkingspot_reserve(self):
         """
@@ -138,27 +146,27 @@ class ParkingAPITests(APITestCase):
                 'longitude': 24.452545489,
             },
         }
-        response = self.client.post(url, payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        post_response = self.client.post(url, payload, format='json')
+        self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
         last_obj = ParkingSpot.objects.last()
-        url = reverse('parkingspot-reserve', args=[last_obj.id])
+        reserve_url = reverse('parkingspot-reserve', args=[last_obj.id])
         start_time = timezone.now()
         end_time = timezone.now()+datetime.timedelta(minutes=10)
         payload = {
             'from_time': start_time,
             'valid_up_to': end_time,
         }
-        response = self.client.post(url, payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        url = reverse('booking-list')
-        response = self.client.get(url, format='json')
-        assert len(response.data) == 1
+        reserve_response = self.client.post(reserve_url, payload, format='json')
+        self.assertEqual(reserve_response.status_code, status.HTTP_201_CREATED)
+        bookings_list_url = reverse('booking-list')
+        bookings_list_response = self.client.get(bookings_list_url, format='json')
+        assert len(bookings_list_response.data) == 1
 
     def test_only_available_parkingspot_listing(self):
         """
         Ensure we can create a new account object.
         """
-        url = reverse('parkingspot-list')
+        parkingspot_list_url = reverse('parkingspot-list')
         payload = {
             'code': 'D',
             'is_reserved': False,
@@ -168,27 +176,27 @@ class ParkingAPITests(APITestCase):
                 'longitude': 24.452545489,
             },
         }
-        response = self.client.post(url, payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        parkingspot_post_response = self.client.post(parkingspot_list_url,
+                                                      payload, format='json')
+        self.assertEqual(parkingspot_post_response.status_code, status.HTTP_201_CREATED)
         last_obj = ParkingSpot.objects.last()
-        url = reverse('parkingspot-reserve', args=[last_obj.id])
+        parkingspot_reserve_url = reverse('parkingspot-reserve', args=[last_obj.id])
         start_time = timezone.now()
         end_time = timezone.now()+datetime.timedelta(minutes=10)
         payload = {
             'from_time': start_time,
             'valid_up_to': end_time,
         }
-        response = self.client.post(url, payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        url = reverse('parkingspot-list')
-        response = self.client.get(url, format='json')
+        parkingspot_reserve_response = self.client.post(parkingspot_reserve_url, payload, format='json')
+        self.assertEqual(parkingspot_reserve_response.status_code, status.HTTP_201_CREATED)
+        response = self.client.get(parkingspot_list_url, format='json')
         assert response.data==[]
 
     def test_booking_cancel(self):
         """
         Ensure we can create a new account object.
         """
-        url = reverse('parkingspot-list')
+        parkingspot_list_url = reverse('parkingspot-list')
         payload = {
             'code': 'D',
             'is_reserved': False,
@@ -198,25 +206,26 @@ class ParkingAPITests(APITestCase):
                 'longitude': 24.452545489,
             },
         }
-        response = self.client.post(url, payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        parkingspot_list_response = self.client.post(parkingspot_list_url,
+                                                     payload, format='json')
+        self.assertEqual(parkingspot_list_response.status_code, status.HTTP_201_CREATED)
         last_obj = ParkingSpot.objects.last()
-        url = reverse('parkingspot-reserve', args=[last_obj.id])
+        parkingspot_reserve_url = reverse('parkingspot-reserve', args=[last_obj.id])
         start_time = timezone.now()
         end_time = timezone.now()+datetime.timedelta(minutes=10)
         payload = {
             'from_time': start_time,
             'valid_up_to': end_time,
         }
-        response = self.client.post(url, payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        url = reverse('booking-list')
-        response = self.client.get(url, format='json')
-        url = reverse('booking-cancel', args=[Booking.objects.last().id])
-        response = self.client.post(url, {}, format='json')
+        parkingspot_reserve_response = self.client.post(parkingspot_reserve_url,
+                                                        payload, format='json')
+        self.assertEqual(parkingspot_reserve_response.status_code,
+                          status.HTTP_201_CREATED)
+        booking_cancel_url = reverse('booking-cancel', args=[Booking.objects.last().id])
+        response = self.client.post(booking_cancel_url, {}, format='json')
         assert response.data['cancled_at'] is not None
-        url = reverse('booking-list')
-        response = self.client.get(url, format='json')
+        booking_list_url = reverse('booking-list')
+        response = self.client.get(booking_list_url, format='json')
         assert len(response.data) == 0
 
     def test_parking_spot_filtering(self):
@@ -255,11 +264,13 @@ class ParkingAPITests(APITestCase):
         response = self.client.post(url, multifit_baner, format='json')
         response = self.client.post(url, synechron_hinjewadi, format='json')
 
+        #Fetaching Responses assuming user is at Orchid Near Mahalunge in radius of 1km
         response = self.client.get(
             url, {'lat': '18.570928', 'long': '73.764075','radius': '1000'},
         )
         assert len(response.data) == 2
 
+        #Fetaching Responses assuming user is at Orchid Near Mahalunge in radius of 10km
         response = self.client.get(
             url, {'lat': '18.570928', 'long': '73.764075', 'radius': '10000'},
         )

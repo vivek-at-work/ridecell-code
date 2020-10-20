@@ -12,6 +12,8 @@ def validate_contact_number_is_unique(value):
         raise ValidationError(
             _('%(value)s is already registered'), params={'value': value},
         )
+
+
 class SignUpSerializer(serializers.Serializer):
     """
     Sign Up Serializer used for user sign up request validation

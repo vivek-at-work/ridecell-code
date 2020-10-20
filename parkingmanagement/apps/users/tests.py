@@ -7,14 +7,15 @@ from rest_framework.test import APITestCase
 from .backends import ConatctNumberBasedAuthenticationsBackend
 
 USER = get_user_model()
+CONTACT_NUMBER = '9657946755'
+PASSWORD ='Qwerty@1234'
+
 
 class UsersTestCase(TestCase):
-
-
     def test_normal_user_creation(self):
         """Test Normal User Creation"""
-        u = USER.objects.create_user('9657946755', 'Qwerty@1234')
-        assert u.contact_number == '9657946755'
+        u = USER.objects.create_user(CONTACT_NUMBER, PASSWORD)
+        assert u.contact_number == CONTACT_NUMBER
         assert u.is_staff == True
         assert u.is_superuser == False
         assert u.has_perm('', None) == False
@@ -23,8 +24,8 @@ class UsersTestCase(TestCase):
 
     def test_super_user_creation(self):
         """Test Super User Creation"""
-        u = USER.objects.create_superuser('9657946756', 'Qwerty@1234')
-        assert u.contact_number == '9657946756'
+        u = USER.objects.create_superuser(CONTACT_NUMBER, PASSWORD)
+        assert u.contact_number == CONTACT_NUMBER
         assert u.is_staff == True
         assert u.is_superuser == True
         assert u.has_perm('', None) == True
@@ -34,56 +35,56 @@ class UsersTestCase(TestCase):
 
 class ConatctNumberBasedAuthenticationsBackendTestCase(TestCase):
     def setUp(self):
-        USER.objects.create_user('9657946755', 'Qwerty@1234')
+        USER.objects.create_user(CONTACT_NUMBER, PASSWORD)
 
     def test_user_login(self):
         """Test Existing User can login"""
         t = ConatctNumberBasedAuthenticationsBackend().authenticate(
-            {}, username='9657946755', password='Qwerty@1234',
+            {}, username=CONTACT_NUMBER, password=PASSWORD,
         )
-        assert str(t) == '9657946755'
+        assert str(t) == CONTACT_NUMBER
 
     def test_non_user_login(self):
         """Test Non Existing User User Login"""
         t = ConatctNumberBasedAuthenticationsBackend().authenticate(
-            {}, username='9657906755', password='Qwerty@1234',
+            {}, username=CONTACT_NUMBER[::-1], password=PASSWORD,
         )
         assert t is None
 
 
 class UsersAPITests(APITestCase):
-    def test_user_signup(self):
+    def test_user_sign_up(self):
         """
         Ensure we can create a new user object.
         """
         url = reverse('user-signup')
         payload = {
-            'contact_number': '9657946755',
-            'password': 'Qwerty@1234',
+            'contact_number': CONTACT_NUMBER,
+            'password': PASSWORD,
         }
         response = self.client.post(url, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         t = ConatctNumberBasedAuthenticationsBackend().authenticate(
-            {}, username='9657946755', password='Qwerty@1234',
+            {}, username=CONTACT_NUMBER, password=PASSWORD,
         )
-        assert str(t) == '9657946755'
+        assert str(t) == CONTACT_NUMBER
 
 
     def test_user_list(self):
         """
         Ensure we can create a new user object and get the same in list.
         """
-        url = reverse('user-signup')
+        sign_up_url = reverse('user-signup')
         payload = {
-            'contact_number': '9657946755',
-            'password': 'Qwerty@1234',
+            'contact_number': CONTACT_NUMBER,
+            'password': PASSWORD,
         }
-        response = self.client.post(url, payload, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sign_up_response = self.client.post(sign_up_url, payload, format='json')
+        self.assertEqual(sign_up_response.status_code, status.HTTP_201_CREATED)
         t = ConatctNumberBasedAuthenticationsBackend().authenticate(
-            {}, username='9657946755', password='Qwerty@1234',
+            {}, username=CONTACT_NUMBER, password=PASSWORD,
         )
-        self.client.login(username='9657946755', password='Qwerty@1234')
-        url = reverse('user-list')
-        response = self.client.get(url, format='json')
-        assert len(response.data) == 1
+        self.client.login(username=CONTACT_NUMBER, password=PASSWORD)
+        list_url = reverse('user-list')
+        list_response = self.client.get(list_url, format='json')
+        assert len(list_response.data) == 1

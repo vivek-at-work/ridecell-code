@@ -24,7 +24,7 @@ This Repo serves as a REST API.
  8. Automated tests  Available
  9. Require users to use phone numbers to sign up.
  10. Validate that the phone numbers are real.
- 
+
 **How to Run on Dev**
 1. git clone this repository
 2. cd ridecell-code
@@ -48,4 +48,3 @@ This Repo serves as a REST API.
 3. pipenv install
 4. Make Envoirenement variable to satify settings  for DB
 5. execute "python runner.py" this will perform testing via all exposed rest end points.
-

@@ -15,8 +15,6 @@ def validate_contact_number(value):
         )
 
 
-
-
 class User(AbstractBaseUser):
     """
     User Model's Replacement for Django applications

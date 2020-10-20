@@ -24,3 +24,28 @@ This Repo serves as a REST API.
  8. Automated tests  Available
  9. Require users to use phone numbers to sign up.
  10. Validate that the phone numbers are real.
+ 
+**How to Run on Dev**
+1. git clone this repository
+2. cd ridecell-code
+3. pipenv install
+4. Make Envoirenement variable to satify settings  for DB
+5. cd parkingmanagement
+6. execute "python manage.py  runserver 8001" this will bring up the local development server on port 8001.
+
+**How to Run Tests**
+1. git clone this repository
+2. cd ridecell-code
+3. pipenv install
+4. Make Envoirenement variable to satify settings  for DB
+5. cd parkingmanagement
+6. execute "python manage.py test parkings" this will  test the parkings app.
+7. execute "python manage.py test users" this will test the users app.
+
+**How to Run e2e**
+1. git clone this repository
+2. cd ridecell-code
+3. pipenv install
+4. Make Envoirenement variable to satify settings  for DB
+5. execute "python runner.py" this will perform testing via all exposed rest end points.
+

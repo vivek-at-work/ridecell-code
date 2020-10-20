@@ -29,7 +29,7 @@ This Repo serves as a REST API.
 1. git clone this repository
 2. cd ridecell-code
 3. pipenv install
-4. Make Envoirenement variable to satify settings  for DB
+4. Make Environnement variable to satify settings  for DB
 5. cd parkingmanagement
 6. execute "python manage.py  runserver 8001" this will bring up the local development server on port 8001.
 

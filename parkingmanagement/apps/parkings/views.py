@@ -1,3 +1,5 @@
+from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 from parkings.exceptions import (NotAvailableToCancelError,
                                  ParkingSpotNotAvailableError)
 from parkings.filters import DistanceToPointFilter
@@ -10,6 +12,9 @@ from rest_framework.response import Response
 
 
 class ParkingSpotViewSet(viewsets.ModelViewSet):
+    """ParkingSpotViewSet is used for performing
+       CRUD and reservation with ParkingSpot Objects
+    """
     serializer_class = ParkingSpotSerializer
     queryset = ParkingSpot.objects.all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -28,15 +33,17 @@ class ParkingSpotViewSet(viewsets.ModelViewSet):
         if serializer.is_valid(raise_exception=True):
             parking_spot = self.get_object()
             try:
-                booking = parking_spot.reserve(**serializer.validated_data)
-                parking_spot.save()
-                return Response(
-                    BookingSerializer(booking, context={'request': request}).data,
-                    status=status.HTTP_201_CREATED,
-                )
+                with transaction.atomic():
+                    booking = parking_spot.reserve(**serializer.validated_data)
+                    parking_spot.save()
+                    return Response(
+                        BookingSerializer(booking,
+                                          context={'request': request}).data,
+                        status=status.HTTP_201_CREATED,
+                    )
             except ParkingSpotNotAvailableError as err:
                 return Response(
-                    {'message':str(err)},
+                    {'message':_(str(err))},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -44,7 +51,10 @@ class ParkingSpotViewSet(viewsets.ModelViewSet):
         return ParkingSpot.objects.available()
 
 
-class BookingViewSet(viewsets.ModelViewSet):
+class BookingViewSet(viewsets.ReadOnlyModelViewSet):
+    """BookingViewSet is used for performing
+       List and cancellation with Booking Objects
+    """
     serializer_class = BookingSerializer
     queryset = Booking.objects.all()
     permission_classes = [permissions.IsAuthenticated]
@@ -52,16 +62,18 @@ class BookingViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
         try:
-            booking = self.get_object()
-            booking.cancel()
-            booking.save()
-            return Response(
-                self.serializer_class(booking, context={'request': request}).data,
-                status=status.HTTP_201_CREATED,
-            )
+            with transaction.atomic():
+                booking = self.get_object()
+                booking.cancel()
+                booking.save()
+                return Response(
+                    self.serializer_class(booking,
+                                          context={'request': request}).data,
+                    status=status.HTTP_201_CREATED,
+                )
         except NotAvailableToCancelError as err:
             return Response(
-                {'message':str(err)},
+                {'message':_(str(err))},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

@@ -88,3 +88,18 @@ class UsersAPITests(APITestCase):
         list_url = reverse('user-list')
         list_response = self.client.get(list_url, format='json')
         assert len(list_response.data) == 1
+
+    def test_duplicate_user_sign_up(self):
+        """
+        Ensure we can register a new user object with a unique  contact number
+        once only
+        """
+        sign_up_url = reverse('user-signup')
+        payload = {
+            'contact_number': CONTACT_NUMBER,
+            'password': PASSWORD,
+        }
+        sign_up_response = self.client.post(sign_up_url, payload, format='json')
+        self.assertEqual(sign_up_response.status_code, status.HTTP_201_CREATED)
+        duplicate_sign_up_response = self.client.post(sign_up_url, payload, format='json')
+        self.assertEqual(duplicate_sign_up_response.status_code, status.HTTP_400_BAD_REQUEST)

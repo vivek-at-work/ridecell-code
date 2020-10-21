@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='parkingspot',
             name='point',
-            field=django.contrib.gis.db.models.fields.PointField(geography=True, help_text='Represented as (longitude, latitude)', srid=4326),
+            field=django.contrib.gis.db.models.fields.PointField(geography=True,
+                                                                 help_text='Represented as (longitude, latitude)', srid=4326),
         ),
     ]

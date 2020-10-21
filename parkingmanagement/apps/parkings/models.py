@@ -15,16 +15,18 @@ class ParkingSpotQuerySet(models.QuerySet):
 
 class ParkingSpot(models.Model):
     """
-    An Parking Spot that is registered to the system for further bookings.
+    An Parking Spot that is registered to
+    the system for further bookings.
     """
 
     code = models.CharField(
-        max_length=256, help_text=_('Human readable name/code'),
+        max_length=256,
+        help_text=_('Human readable name/code'),
     )
     is_reserved = models.BooleanField(default=False)
     point = geo_models.PointField(
         geography=True,
-            help_text=_('Represented as (longitude, latitude)'),
+        help_text=_('Represented as (longitude, latitude)'),
     )
     current_base_cost = models.FloatField(
         help_text=_('Price for the parking spot per minute'),
@@ -49,9 +51,9 @@ class ParkingSpot(models.Model):
         return Booking.objects.create(**kwargs)
 
     def release(self, **kwargs):
-        """"Release this parking object
-        Returns:
-            Booking: A Booking object with booking details.
+        # TODO We can change "is_reserved" to _is_reserved
+        """"
+        a setter method to release this parking object
         """
         self.is_reserved = False
 
@@ -62,7 +64,7 @@ class ParkingSpot(models.Model):
 
 class BookingQuerySet(models.QuerySet):
     def current(self):
-        return self.filter(cancled_at__isnull=True)
+        return self.filter(cancelled_at__isnull=True)
 
 
 class Booking(models.Model):
@@ -88,7 +90,7 @@ class Booking(models.Model):
         related_name='bookings',
         help_text=_('User for whom booking is Created.'),
     )
-    cancled_at = models.DateTimeField(
+    cancelled_at = models.DateTimeField(
         blank=True, null=True, help_text=_('Till what time this booking is valid.'),
     )
 
@@ -113,11 +115,11 @@ class Booking(models.Model):
 
     def cancel(self):
         """
-        Cancles this booking and releses the parking spot
+        Cancels this booking and releses the parking spot
         """
-        if self.cancled_at is not None:
+        if self.cancelled_at is not None:
             raise NotAvailableToCancelError(self)
-        self.cancled_at = timezone.now()
+        self.cancelled_at = timezone.now()
         self.parking_spot.release()
         self.parking_spot.save()
 

@@ -45,7 +45,7 @@ class ParkingSpotTestCase(TestCase):
             )
 
     def test_relese(self):
-        """Test Already Booked Parking Spot can released"""
+        """Test Already Booked Parking Spot can be released"""
         obj_code_a_already_reserved = ParkingSpot.objects.get(code='A')
         obj_code_a_already_reserved.release()
         assert obj_code_a_already_reserved.is_reserved == False
@@ -84,7 +84,7 @@ class BookingTestCase(TestCase):
         assert booking.total_cost == expected
 
     def test_cancel(self):
-        """Test Booking Total Cancelation releases the parking spot"""
+        """Test Booking's cancellation releases the parking spot"""
         start_time = timezone.now()
         end_time = timezone.now()+datetime.timedelta(minutes=10)
         booking = ParkingSpot.objects.first().reserve(
@@ -92,7 +92,7 @@ class BookingTestCase(TestCase):
             tenant=USER.objects.first(),
         )
         booking.cancel()
-        assert booking.cancled_at is not None
+        assert booking.cancelled_at is not None
         assert ParkingSpot.objects.first().is_reserved == False
 
 
@@ -106,7 +106,7 @@ class ParkingAPITests(APITestCase):
 
     def test_parkingspot_list(self):
         """
-        Ensure we can create a new account object.
+        Ensure we can list parkingspots.
         """
         url = reverse('parkingspot-list')
         response = self.client.get(url)
@@ -115,7 +115,7 @@ class ParkingAPITests(APITestCase):
 
     def test_parkingspot_create(self):
         """
-        Ensure we can create a new account object.
+        Ensure we can create a new parkingspot object.
         """
         url = reverse('parkingspot-list')
         payload = {
@@ -134,7 +134,7 @@ class ParkingAPITests(APITestCase):
 
     def test_parkingspot_reserve(self):
         """
-        Ensure we can create a new account object.
+        Ensure we can reserve a parkingspot object.
         """
         url = reverse('parkingspot-list')
         payload = {
@@ -164,7 +164,7 @@ class ParkingAPITests(APITestCase):
 
     def test_only_available_parkingspot_listing(self):
         """
-        Ensure we can create a new account object.
+        Ensure we can list only available parkingspot objects.
         """
         parkingspot_list_url = reverse('parkingspot-list')
         payload = {
@@ -194,7 +194,7 @@ class ParkingAPITests(APITestCase):
 
     def test_booking_cancel(self):
         """
-        Ensure we can create a new account object.
+        Ensure we can cancel a boooking
         """
         parkingspot_list_url = reverse('parkingspot-list')
         payload = {
@@ -223,14 +223,14 @@ class ParkingAPITests(APITestCase):
                           status.HTTP_201_CREATED)
         booking_cancel_url = reverse('booking-cancel', args=[Booking.objects.last().id])
         response = self.client.post(booking_cancel_url, {}, format='json')
-        assert response.data['cancled_at'] is not None
+        assert response.data['cancelled_at'] is not None
         booking_list_url = reverse('booking-list')
         response = self.client.get(booking_list_url, format='json')
         assert len(response.data) == 0
 
     def test_parking_spot_filtering(self):
         """
-        Ensure we can create a new account object.
+        Ensure we can filter parting spot list by lat long and radius.
         """,
         url = reverse('parkingspot-list')
         dmart_baner = {
@@ -263,6 +263,11 @@ class ParkingAPITests(APITestCase):
         response = self.client.post(url, dmart_baner, format='json')
         response = self.client.post(url, multifit_baner, format='json')
         response = self.client.post(url, synechron_hinjewadi, format='json')
+        #Fetaching Responses assuming user is at Orchid Near Mahalunge in radius of 800m
+        response = self.client.get(
+            url, {'lat': '18.570928', 'long': '73.764075','radius': '800'},
+        )
+        assert len(response.data) == 1
 
         #Fetaching Responses assuming user is at Orchid Near Mahalunge in radius of 1km
         response = self.client.get(

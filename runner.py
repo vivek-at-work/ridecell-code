@@ -56,6 +56,7 @@ if __name__ == '__main__':
     perform_sign_up()
     get_parking_spots()
     get_parking_spots_in_radius()
+    get_parking_spots_in_radius(800)
     get_parking_spots_in_radius(1000)
     get_parking_spots_in_radius(50000)
     book_parking_spot()

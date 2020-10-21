@@ -12,10 +12,10 @@ class ParkingSpotNotAvailableError(Exception):
 
 
 class NotAvailableToCancelError(Exception):
-    """Exception raised while trying to cancel an already canceld booking.
+    """Exception raised while trying to cancel an already cancelled booking.
 
     Attributes:
-        booking -- input bookingwhich caused the error
+        booking -- input booking which caused the error.
     """
 
     def __init__(self, booking, message='Booking Spot is not available for Cancelation.'):

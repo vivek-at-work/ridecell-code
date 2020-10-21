@@ -1,24 +1,9 @@
 from django.contrib import admin
 from django.urls import include, path
 from parkings.routers import parkings_router
-from rest_framework import routers
 from users.routers import users_router
 
-
-class DefaultRouter(routers.DefaultRouter):
-    """
-    Extends `DefaultRouter` class to add a method for extending url routes from another router.
-    """
-
-    def extend(self, router):
-        """
-        Extend the routes with url routes of the passed in router.
-
-        Args:
-             router: SimpleRouter instance containing route definitions.
-        """
-        self.registry.extend(router.registry)
-
+from parkingmanagement.default_router import DefaultRouter
 
 router = DefaultRouter()
 router.extend(users_router)

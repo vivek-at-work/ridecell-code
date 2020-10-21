@@ -6,12 +6,10 @@ from requests.auth import HTTPBasicAuth
 USERNAME = '8657946755'
 PASSWORD = 'Qwerty@1234'
 
-
-
 def perform_sign_up():
     url = 'http://127.0.0.1:8001/api/v1/users/signup/'
     user_data = {'contact_number': USERNAME, 'password': PASSWORD}
-    print(f'CREATING A NEW USER WITH USERNAME {USERNAME} AND PASSWORD {PASSWORD}')
+    print(f'CREATING A NEW USER WITH CONTACT NUMBER {USERNAME} AND PASSWORD {PASSWORD}')
     create_user_response = requests.post(url, data=user_data)
     print(create_user_response.json())
 
@@ -23,7 +21,7 @@ def get_parking_spots():
 
 
 def get_parking_spots_in_radius(radius=500):
-    url = 'http://127.0.0.1:8001/api/v1/parkings/?lat=18.567124&long=73.769539&radius={0}'.format(
+    url = 'http://127.0.0.1:8001/api/v1/parkings/?lat=18.570928&long=73.764075&radius={0}'.format(
         radius)
     print(f'GETING ALL PARKING SPOTS IN RADIUS OF {radius}')
     parking_spots = requests.get(url, auth=HTTPBasicAuth(USERNAME, PASSWORD))
@@ -48,9 +46,12 @@ def book_parking_spot():
 def cancel_parking_spot_booking():
     url = 'http://127.0.0.1:8001/api/v1/bookings/'
     bookings = requests.get(url,  auth=HTTPBasicAuth(USERNAME, PASSWORD))
+    print('Performing Cancellation of all bookings')
     for booking in bookings.json():
-        x = requests.post('{}{}/'.format(booking['url'],'cancel'), auth=HTTPBasicAuth(USERNAME, PASSWORD))
+        x = requests.post('{}{}/'.format(booking['url'],'cancel'), 
+                          auth=HTTPBasicAuth(USERNAME, PASSWORD))
         print(x.json())
+
 
 if __name__ == '__main__':
     perform_sign_up()

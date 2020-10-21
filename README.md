@@ -48,3 +48,10 @@ This Repo serves as a REST API.
 3. pipenv install
 4. Make Envoirenement variable to satify settings  for DB
 5. execute "python runner.py" this will perform testing via all exposed rest end points.
+
+
+**Future Road Map**
+1. Intorduce Messaging Queue and consumers for booking so that we can avoid duplicate bookings.
+2. Add Payment Gateways
+3. Authtication to support openauth .
+4. Manage User Profile Section
